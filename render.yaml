@@ -1,0 +1,26 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# Deploy: push this repo to GitHub, then "New > Blueprint" in the Render
+# dashboard and point it at the repo. Render injects PORT automatically.
+services:
+  - type: web
+    name: fal-image-agent
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Standalone HTTP mode: /invoke and /chat are served directly.
+      - key: CONNECTION_MODE
+        value: http
+      # fal.ai API key — set the value in the Render dashboard (never committed).
+      - key: FAL_KEY
+        sync: false
+      # Bearer key callers must send to /invoke and /chat. Render generates a
+      # random value on first deploy; read it from the service's Environment tab.
+      - key: AGENT_API_KEY
+        generateValue: true
+      - key: FAL_MODEL
+        value: fal-ai/flux/schnell
