@@ -25,31 +25,19 @@ describe('gateway HTTP transport — inbound invoke', () => {
   });
 
   it('verifies the gateway signature, dispatches to runAgent, and returns a result frame', async () => {
-    mockedRunAgent.mockResolvedValue({ output: { contract: 'answer.v1', data: { answer: 'hi' } }, usage: { totalTokens: 3 } });
-    const frame = { type: 'invoke.request', requestId: 'req_1', agentId: 'agent.x', contract: 'question_answer.v1', input: { question: 'hi' } };
+    mockedRunAgent.mockResolvedValue({ image_url: 'https://fal.media/files/x/out.jpg' });
+    const frame = { type: 'invoke.request', requestId: 'req_1', agentId: 'agent.x', contract: 'image_generation.v1', input: { message: 'a fox' } };
     const raw = JSON.stringify(frame);
 
     const result = await processGatewayHttpInvoke(raw, signedHeaders(raw));
     expect(result.status).toBe(200);
-    expect(result.body).toEqual({ result: { contract: 'answer.v1', output: { answer: 'hi' }, usage: { totalTokens: 3 } } });
+    expect(result.body).toEqual({
+      result: { contract: 'image_generation.v1', output: { image_url: 'https://fal.media/files/x/out.jpg' } }
+    });
 
-    // The gateway contract was mapped to the agent's input envelope.
+    // The frame input is handed to the agent untouched.
     expect(mockedRunAgent).toHaveBeenCalledTimes(1);
-    const passed = mockedRunAgent.mock.calls[0][0];
-    expect(passed.input.contract).toBe('question.v1');
-    expect(passed.metadata).toBeUndefined();
-  });
-
-  it('passes a custom contract through unchanged and forwards delivery context', async () => {
-    mockedRunAgent.mockResolvedValue({ output: { contract: 'reminder_ack.v1', data: { ok: true } } });
-    const frame = { type: 'invoke.request', requestId: 'req_2', agentId: 'agent.x', contract: 'set_reminder.v1', input: { request: 'in 5m ping' }, context: { delivery: 'vd1.abc.def' } };
-    const raw = JSON.stringify(frame);
-
-    const result = await processGatewayHttpInvoke(raw, signedHeaders(raw));
-    expect(result.status).toBe(200);
-    const passed = mockedRunAgent.mock.calls[0][0];
-    expect(passed.input.contract).toBe('set_reminder.v1');
-    expect(passed.metadata).toEqual({ delivery: 'vd1.abc.def' });
+    expect(mockedRunAgent).toHaveBeenCalledWith({ message: 'a fox' });
   });
 
   it('rejects a bad signature with 401 and never calls the agent', async () => {

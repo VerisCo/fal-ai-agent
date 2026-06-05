@@ -1,36 +1,10 @@
-export interface AgentInputEnvelope {
-  contract: string;
-  data: unknown;
+/** The agent's contract: a text prompt in, a hosted image URL out. */
+export interface ImageGenerationInput {
+  message: string;
 }
 
-export interface AgentInvokeRequest {
-  requestId?: string;
-  from?: {
-    type?: 'human' | 'agent' | 'gateway' | string;
-    id?: string;
-  };
-  input: AgentInputEnvelope;
-  metadata?: Record<string, unknown>;
-}
-
-export interface AgentOutputEnvelope {
-  contract: string;
-  data: unknown;
-}
-
-export interface AgentInvokeResponse {
-  requestId: string;
-  status: 'completed' | 'failed';
-  outputs: AgentOutputEnvelope[];
-  usage?: {
-    inputTokens?: number;
-    outputTokens?: number;
-    totalTokens?: number;
-  };
-  error?: {
-    code: string;
-    message: string;
-  };
+export interface ImageGenerationOutput {
+  image_url: string;
 }
 
 export interface FalImage {
@@ -38,16 +12,6 @@ export interface FalImage {
   width?: number;
   height?: number;
   content_type?: string;
-}
-
-export interface AgentAnswer {
-  answer: string;
-  citations: Array<{
-    source: string;
-    label: string;
-  }>;
-  confidence: 'low' | 'medium' | 'high';
-  limitations: string[];
 }
 
 export interface GatewayInvokeRequestFrame {

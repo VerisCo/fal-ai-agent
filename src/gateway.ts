@@ -2,10 +2,8 @@ import WebSocket, { type RawData } from 'ws';
 import {
   AGENT_CONNECT_TOKEN,
   AGENT_ID,
-  AGENT_NAME,
   ENABLE_GATEWAY_HTTP,
-  GATEWAY_URL,
-  buildAgentManifest
+  GATEWAY_URL
 } from './config.js';
 import { emitOverHttp } from './gateway-http.js';
 import { handleInvokeFrame } from './gateway-rpc.js';
@@ -94,12 +92,7 @@ export function startGatewayConnector(options: GatewayConnectorOptions = {}): Ga
     activeSocket.on('open', () => {
       reconnectAttempt = 0;
       currentSocket = activeSocket;
-      send(activeSocket, {
-        type: 'agent.hello',
-        agentId,
-        name: AGENT_NAME,
-        manifest: buildAgentManifest()
-      });
+      send(activeSocket, { type: 'agent.hello', agentId });
       console.log(`Connected ${agentId} to marketplace gateway ${gatewayUrl}`);
     });
 

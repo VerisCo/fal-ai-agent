@@ -9,14 +9,13 @@ afterEach(() => {
 });
 
 describe('gateway transport selection', () => {
-  it('GATEWAY_TRANSPORT=http flips the manifest runtime and enables the HTTP path', async () => {
+  it('GATEWAY_TRANSPORT=http enables the HTTP path and disables the WS connector', async () => {
     vi.resetModules();
     process.env.CONNECTION_MODE = 'gateway';
     process.env.GATEWAY_TRANSPORT = 'http';
     const config = await import('../src/config.js');
     expect(config.ENABLE_GATEWAY_HTTP).toBe(true);
     expect(config.ENABLE_WS_CONNECTOR).toBe(false);
-    expect(config.buildAgentManifest().runtime.transport).toBe('gateway_validated_http_rpc');
   });
 
   it('defaults to WebSocket transport', async () => {
@@ -25,6 +24,5 @@ describe('gateway transport selection', () => {
     const config = await import('../src/config.js');
     expect(config.ENABLE_WS_CONNECTOR).toBe(true);
     expect(config.ENABLE_GATEWAY_HTTP).toBe(false);
-    expect(config.buildAgentManifest().runtime.transport).toBe('gateway_validated_ws_rpc');
   });
 });
